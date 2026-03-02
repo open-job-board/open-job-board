@@ -1,0 +1,65 @@
+name: Integration Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Extract Supabase keys
+        run: |
+          # Print raw output format for debugging (values are masked by GitHub)
+          supabase status -o env
+          echo "SUPABASE_ANON_KEY=$(supabase status -o env | grep ANON_KEY | cut -d= -f2- | tr -d '\"')" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o env | grep SERVICE_ROLE_KEY | cut -d= -f2- | tr -d '\"')" >> "$GITHUB_ENV"
+
+      - name: Verify PostgREST connectivity
+        run: |
+          # Ensure anon key works with PostgREST before running tests
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' \
+            http://127.0.0.1:54321/rest/v1/jobs?limit=1 \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::PostgREST auth check failed with status $STATUS — keys may be malformed"
+            echo "ANON_KEY length: ${#SUPABASE_ANON_KEY}"
+            echo "First 4 chars: ${SUPABASE_ANON_KEY:0:4}"
+            exit 1
+          fi
+          echo "PostgREST auth OK"
+
+      - name: Serve Edge Functions
+        run: supabase functions serve --no-verify-jwt &
+
+      - name: Wait for Edge Functions
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:54321/functions/v1/submit-job -H "Authorization: Bearer $SUPABASE_ANON_KEY" > /dev/null 2>&1; then
+              echo "Edge Functions ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Edge Functions failed to start"
+          exit 1
+
+      - name: Run integration tests
+        run: deno test tests/integration/ --allow-net --allow-env --no-check
