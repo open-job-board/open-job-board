@@ -1222,8 +1222,27 @@ h1.logo { margin: 0; font-size: 16px; }
 /* Override Swagger UI Tachyons utility classes that force light backgrounds */
 .swagger-dark .swagger-ui .bg-white,
 .swagger-dark .swagger-ui .bg-near-white,
-.swagger-dark .swagger-ui .bg-light-gray {
+.swagger-dark .swagger-ui .bg-light-gray,
+.swagger-dark .swagger-ui .bg-light-silver {
   background-color: var(--bg-code) !important;
+}
+
+.swagger-dark .swagger-ui .bg-washed-blue,
+.swagger-dark .swagger-ui .bg-washed-green,
+.swagger-dark .swagger-ui .bg-washed-yellow,
+.swagger-dark .swagger-ui .bg-washed-red {
+  background-color: var(--bg-code) !important;
+}
+
+/* Override Tachyons text color utilities that force dark text */
+.swagger-dark .swagger-ui .dark-gray,
+.swagger-dark .swagger-ui .mid-gray,
+.swagger-dark .swagger-ui .gray {
+  color: var(--text-muted) !important;
+}
+
+.swagger-dark .swagger-ui .black {
+  color: var(--text) !important;
 }
 
 /* Model containers (wraps each model in the Schemas section) */
@@ -1233,10 +1252,29 @@ h1.logo { margin: 0; font-size: 16px; }
   margin: 0 0 4px;
 }
 
+/* Model wrapper — the span.model that wraps expanded model content */
+.swagger-dark .swagger-ui span.model,
+.swagger-dark .swagger-ui .model-box {
+  background: var(--bg-code);
+}
+
+/* Expanded model/schema brace + inner wrapper (inline model rendering) */
+.swagger-dark .swagger-ui .model-box .model-box {
+  background: transparent;
+}
+
+/* Operation body when expanded */
+.swagger-dark .swagger-ui .opblock-body {
+  background: transparent;
+}
+
 /* Inner model table (property rows within expanded models) */
+.swagger-dark .swagger-ui table.model,
+.swagger-dark .swagger-ui table.model tr,
 .swagger-dark .swagger-ui table.model tr td {
   color: var(--text-muted);
   border-bottom-color: var(--border);
+  background: transparent;
 }
 
 /* Model property names and values */
@@ -1250,6 +1288,38 @@ h1.logo { margin: 0; font-size: 16px; }
 
 .swagger-dark .swagger-ui .model-hint {
   color: var(--text-muted);
+}
+
+/* Brace open/close in model rendering */
+.swagger-dark .swagger-ui .brace-open,
+.swagger-dark .swagger-ui .brace-close {
+  color: var(--text-muted);
+}
+
+/* Inner-object toggle text ("object") */
+.swagger-dark .swagger-ui .model .pointer span {
+  color: var(--text-muted);
+}
+
+/* Parameter required star */
+.swagger-dark .swagger-ui .parameter__name.required::after {
+  color: var(--error);
+}
+
+/* Parameters container */
+.swagger-dark .swagger-ui .parameters-container {
+  background: transparent;
+}
+
+/* Servers dropdown container */
+.swagger-dark .swagger-ui .servers > label {
+  color: var(--text);
+}
+
+.swagger-dark .swagger-ui .servers > label select {
+  background: var(--bg-input);
+  color: var(--text);
+  border-color: var(--border);
 }
 
 /* SVG arrows and expand/collapse icons */
@@ -1373,6 +1443,63 @@ h1.logo { margin: 0; font-size: 16px; }
 /* Section header labels */
 .swagger-dark .swagger-ui .opblock-tag small {
   color: var(--text-muted);
+}
+
+/* Wrapper element (Swagger UI top-level container) */
+.swagger-dark .swagger-ui .wrapper {
+  background: transparent;
+}
+
+/* Info section markdown table borders */
+.swagger-dark .swagger-ui .info table {
+  border-collapse: collapse;
+}
+
+.swagger-dark .swagger-ui .info table th,
+.swagger-dark .swagger-ui .info table td {
+  border-color: var(--border);
+}
+
+/* Execute button styling */
+.swagger-dark .swagger-ui .btn.execute {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Content-type and response code dropdowns */
+.swagger-dark .swagger-ui .responses-inner .content-type,
+.swagger-dark .swagger-ui select {
+  background: var(--bg-input);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* Curl/request URL display */
+.swagger-dark .swagger-ui .request-url pre {
+  background: var(--bg-code);
+  color: var(--text-code);
+  border: 1px solid var(--border);
+}
+
+/* Response body */
+.swagger-dark .swagger-ui .responses-inner .response .response-col_description {
+  color: var(--text-muted);
+}
+
+/* Schemas section title */
+.swagger-dark .swagger-ui section.models .model-container:hover {
+  background: var(--bg-hover);
+}
+
+/* Model title inside schemas */
+.swagger-dark .swagger-ui section.models .model-box {
+  background: transparent;
+}
+
+/* Links in swagger description */
+.swagger-dark .swagger-ui a {
+  color: var(--accent);
 }
 
 /* ============================================================
