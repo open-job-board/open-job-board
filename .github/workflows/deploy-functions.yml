@@ -18,11 +18,11 @@ jobs:
           version: latest
 
       - name: Deploy submit-job function
-        run: supabase functions deploy submit-job --project-ref ppubgurkauoptjsuyfff
+        run: supabase functions deploy submit-job --no-verify-jwt --project-ref ppubgurkauoptjsuyfff
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
       - name: Deploy create-api-key function
-        run: supabase functions deploy create-api-key --project-ref ppubgurkauoptjsuyfff
+        run: supabase functions deploy create-api-key --no-verify-jwt --project-ref ppubgurkauoptjsuyfff
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

@@ -1,0 +1,48 @@
+name: Scrape Welcome to the Jungle
+
+on:
+  schedule:
+    # Run daily at 06:00 UTC
+    - cron: "0 6 * * *"
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Build scraper
+        run: cargo build --release --bin scraper-wttj
+
+      - name: Run WTTJ scraper
+        env:
+          JOB_BOARD_URL: https://ppubgurkauoptjsuyfff.supabase.co
+          JOB_BOARD_API_KEY: ${{ secrets.JOB_BOARD_API_KEY }}
+          RUST_LOG: info
+        run: ./target/release/scraper-wttj
+
+      - name: Verify jobs were pushed
+        run: |
+          echo "Checking for WTTJ jobs on the board..."
+          RESPONSE=$(curl -sf \
+            "https://ppubgurkauoptjsuyfff.supabase.co/rest/v1/jobs?source=eq.welcometothejungle&order=created_at.desc&limit=5" \
+            -H "apikey: sb_publishable_S9AJoMdDWsX1cPOXpM3LJw_pqdn9U0B")
+          COUNT=$(echo "$RESPONSE" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))")
+          echo "Found $COUNT recent WTTJ jobs"
+          if [ "$COUNT" -eq "0" ]; then
+            echo "::warning::No WTTJ jobs found on the board"
+          fi
