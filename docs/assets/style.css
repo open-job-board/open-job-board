@@ -1163,8 +1163,7 @@ h1.logo { margin: 0; font-size: 16px; }
 }
 
 .swagger-dark .swagger-ui input[type=text],
-.swagger-dark .swagger-ui textarea,
-.swagger-dark .swagger-ui select {
+.swagger-dark .swagger-ui textarea {
   background: var(--bg-input);
   color: var(--text);
   border-color: var(--border);
@@ -1468,9 +1467,8 @@ h1.logo { margin: 0; font-size: 16px; }
   border-color: var(--accent);
 }
 
-/* Content-type and response code dropdowns */
-.swagger-dark .swagger-ui .responses-inner .content-type,
-.swagger-dark .swagger-ui select {
+/* Content-type dropdowns */
+.swagger-dark .swagger-ui .responses-inner .content-type {
   background: var(--bg-input);
   color: var(--text);
   border-color: var(--border);
@@ -1501,6 +1499,236 @@ h1.logo { margin: 0; font-size: 16px; }
 /* Links in swagger description */
 .swagger-dark .swagger-ui a {
   color: var(--accent);
+}
+
+/* Endpoint paths and operation IDs */
+.swagger-dark .swagger-ui .opblock .opblock-summary-operation-id,
+.swagger-dark .swagger-ui .opblock .opblock-summary-path,
+.swagger-dark .swagger-ui .opblock .opblock-summary-path__deprecated {
+  color: var(--text);
+}
+
+/* Section header labels (e.g. "Request body content type") */
+.swagger-dark .swagger-ui .opblock .opblock-section-header > label {
+  color: var(--text);
+}
+
+/* Description wrapper elements */
+.swagger-dark .swagger-ui .opblock-description-wrapper,
+.swagger-dark .swagger-ui .opblock-external-docs-wrapper,
+.swagger-dark .swagger-ui .opblock-title_normal {
+  color: var(--text-muted);
+}
+
+.swagger-dark .swagger-ui .opblock-description-wrapper h4,
+.swagger-dark .swagger-ui .opblock-external-docs-wrapper h4,
+.swagger-dark .swagger-ui .opblock-title_normal h4 {
+  color: var(--text);
+}
+
+/* Response links column */
+.swagger-dark .swagger-ui .response-col_links {
+  color: var(--text-muted);
+}
+
+/* Tag hover state */
+.swagger-dark .swagger-ui .opblock-tag:hover {
+  background: var(--bg-hover);
+}
+
+/* All labels */
+.swagger-dark .swagger-ui label {
+  color: var(--text);
+}
+
+/* Select dropdown — override the light background and SVG arrow */
+.swagger-dark .swagger-ui select {
+  background: var(--bg-input) url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path fill='%23a1a1aa' d='M13.418 7.859a.695.695 0 0 1 .978 0 .68.68 0 0 1 0 .969l-3.908 3.83a.697.697 0 0 1-.979 0l-3.908-3.83a.68.68 0 0 1 0-.969.695.695 0 0 1 .978 0L10 11z'/></svg>") right 10px center no-repeat !important;
+  background-size: 20px !important;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* Text inputs and textarea — ensure white bg is overridden */
+.swagger-dark .swagger-ui input[type=email],
+.swagger-dark .swagger-ui input[type=file],
+.swagger-dark .swagger-ui input[type=password],
+.swagger-dark .swagger-ui input[type=search],
+.swagger-dark .swagger-ui input[type=text],
+.swagger-dark .swagger-ui textarea {
+  background: var(--bg-input);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* Disabled inputs */
+.swagger-dark .swagger-ui input[disabled],
+.swagger-dark .swagger-ui select[disabled],
+.swagger-dark .swagger-ui textarea[disabled] {
+  background-color: var(--bg-code);
+  color: var(--text-muted);
+}
+
+/* Request body textarea */
+.swagger-dark .swagger-ui textarea {
+  background: var(--bg-input);
+  color: var(--text);
+}
+
+/* Curl command textarea */
+.swagger-dark .swagger-ui textarea.curl {
+  background: var(--bg-code);
+  color: var(--text-code);
+}
+
+/* Checkbox styling */
+.swagger-dark .swagger-ui .checkbox p {
+  color: var(--text-muted);
+}
+
+.swagger-dark .swagger-ui .checkbox input[type=checkbox] + label > .item {
+  background: var(--border);
+  box-shadow: 0 0 0 2px var(--border);
+}
+
+.swagger-dark .swagger-ui .checkbox input[type=checkbox]:checked + label > .item {
+  background: var(--border) url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='3 7 10 8'><path fill='%23fafafa' fill-rule='evenodd' d='M6.333 15 3 11.667l1.333-1.334 2 2L11.667 7 13 8.333z'/></svg>") 50% no-repeat;
+}
+
+/* Auth container */
+.swagger-dark .swagger-ui .auth-container {
+  border-bottom-color: var(--border);
+}
+
+.swagger-dark .swagger-ui .auth-container .errors {
+  background-color: var(--error-bg);
+  color: var(--error);
+}
+
+/* Dialog modal header border */
+.swagger-dark .swagger-ui .dialog-ux .modal-ux-header {
+  border-bottom-color: var(--border);
+}
+
+/* Dialog content headings */
+.swagger-dark .swagger-ui .dialog-ux .modal-ux-content h4 {
+  color: var(--text);
+}
+
+/* Info section headings and base URL */
+.swagger-dark .swagger-ui .info h1,
+.swagger-dark .swagger-ui .info h2,
+.swagger-dark .swagger-ui .info h3,
+.swagger-dark .swagger-ui .info h4,
+.swagger-dark .swagger-ui .info h5 {
+  color: var(--text);
+}
+
+.swagger-dark .swagger-ui .info .base-url {
+  color: var(--text-muted);
+}
+
+/* Scopes heading */
+.swagger-dark .swagger-ui .scopes h2 {
+  color: var(--text);
+}
+
+.swagger-dark .swagger-ui .scopes h2 a {
+  color: var(--accent);
+}
+
+/* Error headings */
+.swagger-dark .swagger-ui .errors-wrapper .errors h4,
+.swagger-dark .swagger-ui .errors-wrapper hgroup h4 {
+  color: var(--text);
+}
+
+/* Section headings */
+.swagger-dark .swagger-ui section h3 {
+  color: var(--text);
+}
+
+/* Version pragma code */
+.swagger-dark .swagger-ui .version-pragma__message code {
+  background-color: var(--bg-code);
+  color: var(--text-code);
+}
+
+/* Server dropdown label */
+.swagger-dark .swagger-ui .scheme-container .schemes > .schemes-server-container > label {
+  color: var(--text);
+}
+
+/* Response headers table */
+.swagger-dark .swagger-ui table.headers td {
+  color: var(--text-muted);
+}
+
+/* Tachyons: near-black and bg-moon-gray */
+.swagger-dark .swagger-ui .near-black {
+  color: var(--text) !important;
+}
+
+.swagger-dark .swagger-ui .bg-moon-gray {
+  background-color: var(--bg-code) !important;
+}
+
+/* Hover state overrides */
+.swagger-dark .swagger-ui .hover-bg-white:focus,
+.swagger-dark .swagger-ui .hover-bg-white:hover,
+.swagger-dark .swagger-ui .hover-bg-light-gray:focus,
+.swagger-dark .swagger-ui .hover-bg-light-gray:hover {
+  background-color: var(--bg-hover) !important;
+}
+
+.swagger-dark .swagger-ui .hover-black:focus,
+.swagger-dark .swagger-ui .hover-black:hover,
+.swagger-dark .swagger-ui .hover-dark-gray:focus,
+.swagger-dark .swagger-ui .hover-dark-gray:hover {
+  color: var(--text) !important;
+}
+
+/* Deprecated operations */
+.swagger-dark .swagger-ui .opblock.opblock-deprecated {
+  background: rgba(235,235,235,.05);
+  border-color: var(--border);
+}
+
+.swagger-dark .swagger-ui .opblock.opblock-deprecated .opblock-summary-method {
+  background: var(--border);
+}
+
+.swagger-dark .swagger-ui .opblock.opblock-deprecated .opblock-summary {
+  border-color: var(--border);
+}
+
+/* Download button in response */
+.swagger-dark .swagger-ui .download-contents {
+  background: var(--border-strong);
+  color: var(--text);
+}
+
+/* JSON Schema 2020-12 components */
+.swagger-dark .swagger-ui .json-schema-2020-12-property .json-schema-2020-12__title,
+.swagger-dark .swagger-ui .json-schema-2020-12__attribute,
+.swagger-dark .swagger-ui .json-schema-2020-12-keyword__name--primary,
+.swagger-dark .swagger-ui .json-schema-2020-12-keyword__value--primary,
+.swagger-dark .swagger-ui .json-schema-2020-12-json-viewer__name--primary,
+.swagger-dark .swagger-ui .json-schema-2020-12-json-viewer__value--primary,
+.swagger-dark .swagger-ui .json-schema-2020-12-keyword--const .json-schema-2020-12-json-viewer__name,
+.swagger-dark .swagger-ui .json-schema-2020-12-keyword--const .json-schema-2020-12-json-viewer__value,
+.swagger-dark .swagger-ui .json-schema-2020-12-keyword--default .json-schema-2020-12-json-viewer__name,
+.swagger-dark .swagger-ui .json-schema-2020-12-keyword--default .json-schema-2020-12-json-viewer__value,
+.swagger-dark .swagger-ui .json-schema-2020-12-keyword--enum .json-schema-2020-12-json-viewer__name,
+.swagger-dark .swagger-ui .json-schema-2020-12-keyword--enum .json-schema-2020-12-json-viewer__value,
+.swagger-dark .swagger-ui .json-schema-2020-12-keyword--examples .json-schema-2020-12-json-viewer__name,
+.swagger-dark .swagger-ui .json-schema-2020-12-keyword--examples .json-schema-2020-12-json-viewer__value {
+  color: var(--text-muted);
+}
+
+/* Models section open state border */
+.swagger-dark .swagger-ui section.models.is-open h4 {
+  border-bottom-color: var(--border);
 }
 
 /* ============================================================
