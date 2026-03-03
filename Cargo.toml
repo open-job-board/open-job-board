@@ -1,3 +1,0 @@
-[workspace]
-members = ["crates/common", "crates/scraper-wttj"]
-resolver = "2"
