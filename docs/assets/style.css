@@ -1244,7 +1244,6 @@ h1.logo { margin: 0; font-size: 16px; }
 .swagger-dark .swagger-ui .black {
   color: var(--text) !important;
 }
-
 /* Model containers (wraps each model in the Schemas section) */
 .swagger-dark .swagger-ui .model-container {
   background: var(--bg-code);
