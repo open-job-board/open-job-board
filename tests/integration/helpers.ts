@@ -150,3 +150,35 @@ export async function cleanupApiKeys(namePrefix: string): Promise<void> {
   });
   await res.body?.cancel();
 }
+
+/**
+ * Login via the login Edge Function and return the response.
+ */
+export async function loginWithEmail(
+  body: Record<string, unknown>,
+): Promise<Response> {
+  return fetch(`${FUNCTIONS_URL}/login`, {
+    method: "POST",
+    headers: functionHeaders,
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * Call manage-profile with a session token.
+ */
+export async function manageProfileWithSession(
+  method: string,
+  sessionToken: string,
+  body?: Record<string, unknown>,
+): Promise<Response> {
+  const headers: Record<string, string> = {
+    ...functionHeaders,
+    "X-Session-Token": sessionToken,
+  };
+  const opts: RequestInit = { method, headers };
+  if (body) {
+    opts.body = JSON.stringify(body);
+  }
+  return fetch(`${FUNCTIONS_URL}/manage-profile`, opts);
+}
