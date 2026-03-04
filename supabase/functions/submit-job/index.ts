@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.23.8/mod.ts";
 import { corsHeaders } from "../_shared/cors.ts";
+import { createLogger } from "../_shared/otel.ts";
 
 // =============================================================================
 // Zod validation schema (mirrors the protobuf JobOfferParsed definition)
@@ -71,6 +72,8 @@ const JobSubmissionSchema = z.object({
 // =============================================================================
 
 Deno.serve(async (req: Request) => {
+  const logger = createLogger("submit-job");
+
   // CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders, status: 204 });
@@ -85,136 +88,182 @@ Deno.serve(async (req: Request) => {
     return json({ error: "Method not allowed" }, 405);
   }
 
-  // Supabase service role client (bypasses RLS for internal writes)
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    { auth: { persistSession: false } },
-  );
-
-  // Determine rate-limit identifier: API key (if valid) or IP address
-  const apiKeyHeader = req.headers.get("x-api-key");
-  const clientIp =
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    req.headers.get("cf-connecting-ip") ??
-    "unknown";
-
-  let rateLimit = 10;          // anonymous: 10 req/min
-  let identifier = `ip:${clientIp}`;
-
-  if (apiKeyHeader) {
-    const keyHash = await sha256hex(apiKeyHeader);
-    const { data: keyRecord } = await supabase
-      .from("api_keys")
-      .select("id, rate_limit, is_active")
-      .eq("key_hash", keyHash)
-      .eq("is_active", true)
-      .maybeSingle();
-
-    if (keyRecord) {
-      rateLimit  = keyRecord.rate_limit;
-      identifier = `key:${keyHash}`;
-      // Update last_used in the background (fire-and-forget)
-      supabase
-        .from("api_keys")
-        .update({ last_used: new Date().toISOString() })
-        .eq("id", keyRecord.id)
-        .then(() => {});
-    }
-    // Invalid key → silently fall back to IP-based limit
-  }
-
-  // Check rate limit
-  const { data: allowed, error: rateError } = await supabase.rpc(
-    "check_rate_limit",
-    { p_identifier: identifier, p_limit: rateLimit, p_window_secs: 60 },
-  );
-
-  if (rateError) {
-    console.error("Rate limit check failed:", rateError);
-    return json({ error: "Internal server error" }, 500);
-  }
-
-  if (!allowed) {
-    return new Response(
-      JSON.stringify({ error: "Rate limit exceeded. Retry after 60 seconds." }),
-      {
-        status: 429,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-          "Retry-After": "60",
-        },
-      },
-    );
-  }
-
-  // Parse request body
-  let body: unknown;
   try {
-    body = await req.json();
-  } catch {
-    return json({ error: "Invalid JSON body" }, 400);
-  }
+    const clientIp =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      req.headers.get("cf-connecting-ip") ??
+      "unknown";
 
-  // Validate against schema
-  const parsed = JobSubmissionSchema.safeParse(body);
-  if (!parsed.success) {
-    return json(
-      { error: "Validation failed", details: parsed.error.flatten() },
-      422,
+    logger.info("Request received", {
+      "client.address": clientIp,
+      "http.method": req.method,
+      "http.url": req.url,
+    });
+
+    // Supabase service role client (bypasses RLS for internal writes)
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      { auth: { persistSession: false } },
     );
-  }
 
-  const job = parsed.data;
+    // Determine rate-limit identifier: API key (if valid) or IP address
+    const apiKeyHeader = req.headers.get("x-api-key");
 
-  // Map proto-shaped input → flat DB row
-  const row = {
-    source:            job.origin.source,
-    reference:         job.origin.reference ?? null,
-    contact:           job.origin.contact ?? null,
-    title:             job.title,
-    description:       job.description,
-    responsibilities:  job.responsibilities,
-    benefits:          job.benefits,
-    employment_type:   job.employment_type ?? null,
-    company_name:      job.company?.name ?? null,
-    company_website:   job.company?.website ?? null,
-    company_sector:    job.company?.sector ?? null,
-    company_anecdote:  job.company?.anecdote ?? null,
-    company_locations: job.company?.location ?? [],
-    location_city:     job.location?.city ?? null,
-    location_country:  job.location?.country ?? null,
-    remote_full:       job.location?.remote?.full ?? null,
-    remote_days:       job.location?.remote?.days ?? null,
-    requirements:      job.requirements ?? null,
-    salary_currency:   job.salary?.currency ?? null,
-    salary_min:        job.salary?.min ?? null,
-    salary_max:        job.salary?.max ?? null,
-    salary_period:     job.salary?.period ?? null,
-    posted_at:         job.posted_at ?? null,
-    parsed_at:         job.parsed_at ?? null,
-  };
+    let rateLimit = 10;          // anonymous: 10 req/min
+    let identifier = `ip:${clientIp}`;
+    let authenticated = false;
 
-  const { data, error: insertError } = await supabase
-    .from("jobs")
-    .insert(row)
-    .select("id, created_at")
-    .single();
+    if (apiKeyHeader) {
+      const keyHash = await sha256hex(apiKeyHeader);
+      const { data: keyRecord } = await supabase
+        .from("api_keys")
+        .select("id, rate_limit, is_active")
+        .eq("key_hash", keyHash)
+        .eq("is_active", true)
+        .maybeSingle();
 
-  if (insertError) {
-    // Unique constraint violation = duplicate source+reference
-    if (insertError.code === "23505") {
-      return json(
-        { error: "Duplicate job: this source + reference already exists." },
-        409,
+      if (keyRecord) {
+        rateLimit  = keyRecord.rate_limit;
+        identifier = `key:${keyHash}`;
+        authenticated = true;
+        // Update last_used in the background (fire-and-forget)
+        supabase
+          .from("api_keys")
+          .update({ last_used: new Date().toISOString() })
+          .eq("id", keyRecord.id)
+          .then(() => {});
+      }
+      // Invalid key → silently fall back to IP-based limit
+    }
+
+    logger.info("Rate limit check", {
+      authenticated,
+      identifier,
+      "rate_limit.max": rateLimit,
+    });
+
+    // Check rate limit
+    const { data: allowed, error: rateError } = await supabase.rpc(
+      "check_rate_limit",
+      { p_identifier: identifier, p_limit: rateLimit, p_window_secs: 60 },
+    );
+
+    if (rateError) {
+      logger.error("Rate limit check failed", {
+        "error.message": rateError.message,
+        "error.code": rateError.code,
+      });
+      return json({ error: "Internal server error" }, 500);
+    }
+
+    if (!allowed) {
+      logger.warn("Rate limit exceeded", { identifier });
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Retry after 60 seconds." }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": "60",
+          },
+        },
       );
     }
-    console.error("Insert error:", insertError);
-    return json({ error: "Internal server error" }, 500);
-  }
 
-  return json({ id: data.id, created_at: data.created_at }, 201);
+    // Parse request body
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      logger.warn("Invalid JSON body");
+      return json({ error: "Invalid JSON body" }, 400);
+    }
+
+    // Validate against schema
+    const parsed = JobSubmissionSchema.safeParse(body);
+    if (!parsed.success) {
+      logger.warn("Validation failed", {
+        "error.count": parsed.error.issues.length,
+      });
+      return json(
+        { error: "Validation failed", details: parsed.error.flatten() },
+        422,
+      );
+    }
+
+    const job = parsed.data;
+
+    // Map proto-shaped input → flat DB row
+    const row = {
+      source:            job.origin.source,
+      reference:         job.origin.reference ?? null,
+      contact:           job.origin.contact ?? null,
+      title:             job.title,
+      description:       job.description,
+      responsibilities:  job.responsibilities,
+      benefits:          job.benefits,
+      employment_type:   job.employment_type ?? null,
+      company_name:      job.company?.name ?? null,
+      company_website:   job.company?.website ?? null,
+      company_sector:    job.company?.sector ?? null,
+      company_anecdote:  job.company?.anecdote ?? null,
+      company_locations: job.company?.location ?? [],
+      location_city:     job.location?.city ?? null,
+      location_country:  job.location?.country ?? null,
+      remote_full:       job.location?.remote?.full ?? null,
+      remote_days:       job.location?.remote?.days ?? null,
+      requirements:      job.requirements ?? null,
+      salary_currency:   job.salary?.currency ?? null,
+      salary_min:        job.salary?.min ?? null,
+      salary_max:        job.salary?.max ?? null,
+      salary_period:     job.salary?.period ?? null,
+      posted_at:         job.posted_at ?? null,
+      parsed_at:         job.parsed_at ?? null,
+    };
+
+    const { data, error: insertError } = await supabase
+      .from("jobs")
+      .insert(row)
+      .select("id, created_at")
+      .single();
+
+    if (insertError) {
+      // Unique constraint violation = duplicate source+reference
+      if (insertError.code === "23505") {
+        logger.warn("Duplicate job submission", {
+          reference: job.origin.reference,
+          source: job.origin.source,
+        });
+        return json(
+          { error: "Duplicate job: this source + reference already exists." },
+          409,
+        );
+      }
+      logger.error("Job insert failed", {
+        "error.code": insertError.code,
+        "error.message": insertError.message,
+      });
+      return json({ error: "Internal server error" }, 500);
+    }
+
+    logger.info("Job submitted successfully", {
+      "job.id": data.id,
+      source: job.origin.source,
+      title: job.title,
+    });
+
+    return json({ id: data.id, created_at: data.created_at }, 201);
+  } catch (err) {
+    logger.error("Unhandled error", {
+      "error.message": err instanceof Error ? err.message : String(err),
+      "error.type": err instanceof Error ? err.constructor.name : typeof err,
+    });
+    return json({ error: "Internal server error" }, 500);
+  } finally {
+    await logger.flush();
+  }
 });
 
 // =============================================================================
