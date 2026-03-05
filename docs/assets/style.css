@@ -883,6 +883,10 @@ h1.logo { margin: 0; font-size: 16px; }
    Job detail modal
    ============================================================ */
 
+.job-modal[hidden] {
+  display: none;
+}
+
 .job-modal {
   position: fixed;
   inset: 0;
