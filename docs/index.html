@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open Job Board - Free REST API for Job Listings</title>
-  <meta name="description" content="A free, open REST API for job listings. Submit and query jobs with a simple API. No sign-up required.">
+  <title>Open Job Board - Browse Jobs</title>
+  <meta name="description" content="Browse thousands of job listings. Search by keyword, filter by location, remote, employment type, and more.">
   <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
   <header class="site-header">
     <div class="container">
-      <a href="index.html" class="logo">
+      <a href="./" class="logo">
         <div class="logo-icon"></div>
         Open Job Board
       </a>
@@ -18,10 +18,9 @@
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
       </button>
       <nav>
-        <a href="index.html" class="active">Home</a>
-        <a href="docs.html">Documentation</a>
-        <a href="api.html">API Explorer</a>
-        <a href="search.html">Search Jobs</a>
+        <a href="./" class="active">Jobs</a>
+        <a href="docs/">Documentation</a>
+        <a href="docs/api.html">API Explorer</a>
         <span class="nav-separator"></span>
         <a href="https://github.com/almaju/open-job-board">GitHub</a>
       </nav>
@@ -29,107 +28,89 @@
   </header>
 
   <main class="container">
-    <section class="hero">
-      <div class="hero-badge">
-        <span class="badge-dot"></span>
-        Open source &middot; MIT License
-      </div>
-      <h2>A free, open API<br>for job listings</h2>
-      <p>Query thousands of jobs or submit your own with a simple REST API. No sign-up required for reading. Get an API key for higher write limits.</p>
-      <div class="hero-actions">
-        <a href="docs.html" class="btn btn-primary">Get Started</a>
-        <a href="api.html" class="btn btn-secondary">API Explorer</a>
-      </div>
+    <!-- Search hero -->
+    <section class="search-hero">
+      <h1 class="search-hero-title">Find your next job</h1>
+      <p class="search-hero-subtitle">Browse thousands of jobs from across the web. Powered by a free, open-source API.</p>
     </section>
 
-    <section class="quick-start">
-      <h2>Quick Start</h2>
-      <p>Start querying jobs in seconds with a single HTTP request.</p>
-
-      <h3>Search for jobs</h3>
-      <div class="code-block">
-        <pre><code>curl -X POST "https://ppubgurkauoptjsuyfff.supabase.co/rest/v1/rpc/search_jobs" \
-  -H "apikey: sb_publishable_S9AJoMdDWsX1cPOXpM3LJw_pqdn9U0B" \
-  -H "Content-Type: application/json" \
-  -d '{"query": "senior golang engineer", "remote": true}'</code></pre>
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+    <!-- Search + Filters -->
+    <form id="search-form" class="search-form">
+      <div class="search-row">
+        <input
+          type="text"
+          id="q"
+          name="q"
+          placeholder="Search by title, skill, or company..."
+          class="search-input-main"
+          autocomplete="off"
+        >
+        <button type="submit" class="btn btn-primary">Search</button>
       </div>
 
-      <h3>List remote jobs</h3>
-      <div class="code-block">
-        <pre><code>curl "https://ppubgurkauoptjsuyfff.supabase.co/rest/v1/jobs?remote_full=eq.true&amp;order=posted_at.desc&amp;limit=10" \
-  -H "apikey: sb_publishable_S9AJoMdDWsX1cPOXpM3LJw_pqdn9U0B"</code></pre>
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-      </div>
-
-      <h3>Submit a job</h3>
-      <div class="code-block">
-        <pre><code>curl -X POST "https://ppubgurkauoptjsuyfff.supabase.co/functions/v1/submit-job" \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: your_api_key_here" \
-  -d '{
-    "origin": { "source": "my-scraper", "reference": "job-123" },
-    "title": "Senior Backend Engineer",
-    "description": "We are looking for a backend engineer...",
-    "company": { "name": "Acme Corp" },
-    "location": { "country": "Germany", "remote": { "full": true } }
-  }'</code></pre>
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-      </div>
-    </section>
-
-    <section class="features">
-      <h2>Features</h2>
-      <p>Everything you need to build on top of job data.</p>
-      <div class="feature-grid">
-        <div class="feature-card">
-          <div class="feature-card-icon">&#x1F50D;</div>
-          <h3>Full-Text Search</h3>
-          <p>Search across titles, companies, descriptions, and locations with relevance ranking. Filter by country, remote, salary, and more.</p>
+      <div class="filters-bar" id="filters-bar">
+        <div class="filter-group">
+          <label for="country">Country</label>
+          <input type="text" id="country" placeholder="e.g. Germany">
         </div>
-        <div class="feature-card">
-          <div class="feature-card-icon">&#x1F4E4;</div>
-          <h3>Open Submissions</h3>
-          <p>Submit jobs via a simple POST request. No account required. Rate limited to 10 requests/min per IP, or 100/min with an API key.</p>
+        <div class="filter-group">
+          <label for="employment">Type</label>
+          <select id="employment">
+            <option value="">Any</option>
+            <option value="full-time">Full-time</option>
+            <option value="part-time">Part-time</option>
+            <option value="contract">Contract</option>
+            <option value="freelance">Freelance</option>
+            <option value="internship">Internship</option>
+          </select>
         </div>
-        <div class="feature-card">
-          <div class="feature-card-icon">&#x1F6E1;</div>
-          <h3>Deduplication</h3>
-          <p>Scrapers can safely re-submit. The API returns HTTP 409 when the same source + reference already exists. No duplicates.</p>
+        <div class="filter-group filter-group-checkbox">
+          <label>
+            <input type="checkbox" id="remote">
+            Remote only
+          </label>
         </div>
-        <div class="feature-card">
-          <div class="feature-card-icon">&#x1F511;</div>
-          <h3>API Keys</h3>
-          <p>Generate an API key instantly for higher rate limits. Keys are hashed and never stored in plaintext.</p>
-        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="clear-filters-btn">Clear filters</button>
       </div>
-    </section>
+    </form>
 
-    <section class="api-key-section">
-      <h2>Ready to build?</h2>
-      <p>Read the documentation to learn more, or jump straight into the API explorer.</p>
-      <div class="hero-actions">
-        <a href="docs.html" class="btn btn-primary">Read the Docs</a>
-        <a href="docs.html#create-api-key" class="btn btn-secondary">Get an API Key</a>
-      </div>
-    </section>
+    <!-- Status -->
+    <div id="status" class="status-message" hidden></div>
+
+    <!-- Results header -->
+    <div id="results-header" class="results-header" hidden>
+      <span id="results-count"></span>
+    </div>
+
+    <!-- Job list -->
+    <div id="results" class="results-grid"></div>
+
+    <!-- Pagination -->
+    <div id="pagination" class="pagination" hidden>
+      <button id="prev-btn" class="btn btn-secondary btn-sm" disabled>Previous</button>
+      <span id="page-info"></span>
+      <button id="next-btn" class="btn btn-secondary btn-sm">Next</button>
+    </div>
   </main>
+
+  <!-- Job detail modal -->
+  <div id="job-modal" class="job-modal" hidden>
+    <div class="job-modal-backdrop" id="modal-backdrop"></div>
+    <div class="job-modal-content" id="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="job-modal-header">
+        <h2 id="modal-title"></h2>
+        <button class="job-modal-close" id="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="job-modal-body" id="modal-body"></div>
+    </div>
+  </div>
 
   <footer class="site-footer">
     <div class="container">
-      <p>Open Job Board &mdash; MIT License &mdash; <a href="https://github.com/almaju/open-job-board">GitHub</a></p>
+      <p>Open Job Board &mdash; MIT License &mdash; <a href="https://github.com/almaju/open-job-board">GitHub</a> &mdash; <a href="docs/">API Docs</a></p>
     </div>
   </footer>
 
-  <script>
-    function copyCode(btn) {
-      const code = btn.previousElementSibling.querySelector('code');
-      navigator.clipboard.writeText(code.textContent).then(() => {
-        btn.textContent = 'Copied!';
-        btn.classList.add('copied');
-        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
-      });
-    }
-  </script>
+  <script src="assets/search.js"></script>
 </body>
 </html>
