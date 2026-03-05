@@ -31,10 +31,12 @@ Deno.serve(async (req: Request) => {
 
     logger.info("Starting cleanup", { cutoff: cutoffIso, "max_age.days": MAX_AGE_DAYS });
 
+    // Delete jobs where posted_at is older than the cutoff, falling back to
+    // created_at for jobs that have no posted_at set.
     const { count, error } = await supabase
       .from("jobs")
       .delete({ count: "exact" })
-      .lt("created_at", cutoffIso);
+      .or(`posted_at.lt.${cutoffIso},and(posted_at.is.null,created_at.lt.${cutoffIso})`);
 
     if (error) {
       logger.error("Cleanup failed", {
