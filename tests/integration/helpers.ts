@@ -176,10 +176,11 @@ export async function getJobDetail(
   body: Record<string, unknown>,
   options: { method?: string; headers?: Record<string, string> } = {},
 ): Promise<Response> {
+  const method = options.method ?? "POST";
   return fetch(`${FUNCTIONS_URL}/api-job-detail`, {
-    body: JSON.stringify(body),
+    body: method === "GET" || method === "OPTIONS" ? undefined : JSON.stringify(body),
     headers: { ...functionHeaders, ...options.headers },
-    method: options.method ?? "POST",
+    method,
   });
 }
 
