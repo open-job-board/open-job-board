@@ -4,8 +4,8 @@
 // directly, avoiding heavy SDK dependencies in the serverless environment.
 // =============================================================================
 
-const OTEL_ENDPOINT =
-  Deno.env.get("OTEL_EXPORTER_OTLP_ENDPOINT") ?? "http://otel.forgen.tech";
+const OTEL_ENDPOINT = Deno.env.get("OTEL_EXPORTER_OTLP_ENDPOINT") ??
+  "http://otel.forgen.tech";
 
 // OTLP severity numbers (https://opentelemetry.io/docs/specs/otel/logs/data-model/#severity-fields)
 const SeverityNumber = {
@@ -86,8 +86,7 @@ export class Logger {
     this.scopeName = scopeName;
     this.traceId = crypto.randomUUID().replaceAll("-", "");
     this.resourceAttributes = encodeAttributes({
-      "deployment.environment":
-        Deno.env.get("ENVIRONMENT") ?? "production",
+      "deployment.environment": Deno.env.get("ENVIRONMENT") ?? "production",
       "service.name": "open-job-board",
       "service.version": "1.0.0",
     });
@@ -271,8 +270,7 @@ export class Tracer {
     this.scopeName = scopeName;
     this.traceId = crypto.randomUUID().replaceAll("-", "");
     this.resourceAttributes = encodeAttributes({
-      "deployment.environment":
-        Deno.env.get("ENVIRONMENT") ?? "production",
+      "deployment.environment": Deno.env.get("ENVIRONMENT") ?? "production",
       "service.name": "open-job-board",
       "service.version": "1.0.0",
     });
