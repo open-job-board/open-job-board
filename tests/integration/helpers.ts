@@ -150,3 +150,50 @@ export async function cleanupApiKeys(namePrefix: string): Promise<void> {
   });
   await res.body?.cancel();
 }
+
+// =============================================================================
+// Edge Function helpers (api-jobs, api-search, api-job-detail)
+// =============================================================================
+
+/**
+ * Query jobs via the api-jobs edge function with optional query parameters.
+ */
+export async function fetchJobs(
+  params: string = "",
+  options: { method?: string; headers?: Record<string, string> } = {},
+): Promise<Response> {
+  const sep = params ? "?" : "";
+  return fetch(`${FUNCTIONS_URL}/api-jobs${sep}${params}`, {
+    headers: { ...functionHeaders, ...options.headers },
+    method: options.method ?? "GET",
+  });
+}
+
+/**
+ * Get full job detail via the api-job-detail edge function.
+ */
+export async function getJobDetail(
+  body: Record<string, unknown>,
+  options: { method?: string; headers?: Record<string, string> } = {},
+): Promise<Response> {
+  const method = options.method ?? "POST";
+  return fetch(`${FUNCTIONS_URL}/api-job-detail`, {
+    body: method === "GET" || method === "OPTIONS" ? undefined : JSON.stringify(body),
+    headers: { ...functionHeaders, ...options.headers },
+    method,
+  });
+}
+
+/**
+ * Search jobs via the api-search edge function.
+ */
+export async function searchJobs(
+  body: Record<string, unknown> = {},
+  options: { method?: string; headers?: Record<string, string> } = {},
+): Promise<Response> {
+  return fetch(`${FUNCTIONS_URL}/api-search`, {
+    body: options.method === "GET" ? undefined : JSON.stringify(body),
+    headers: { ...functionHeaders, ...options.headers },
+    method: options.method ?? "POST",
+  });
+}

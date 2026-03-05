@@ -13,18 +13,20 @@ A free, open job board with a public REST API. Anyone can post jobs (scrapers, c
 
 ```bash
 # List recent jobs
-curl "https://ppubgurkauoptjsuyfff.supabase.co/rest/v1/jobs?order=posted_at.desc&limit=10" \
-  -H "apikey: sb_publishable_S9AJoMdDWsX1cPOXpM3LJw_pqdn9U0B"
+curl "https://ppubgurkauoptjsuyfff.supabase.co/functions/v1/api-jobs?order=posted_at.desc&limit=10"
 
 # Filter: remote jobs in France
-curl "https://ppubgurkauoptjsuyfff.supabase.co/rest/v1/jobs?location_country=eq.France&remote_full=eq.true" \
-  -H "apikey: sb_publishable_S9AJoMdDWsX1cPOXpM3LJw_pqdn9U0B"
+curl "https://ppubgurkauoptjsuyfff.supabase.co/functions/v1/api-jobs?location_country=eq.France&remote_full=eq.true"
 
 # Full-text search with filters
-curl -X POST "https://ppubgurkauoptjsuyfff.supabase.co/rest/v1/rpc/search_jobs" \
-  -H "apikey: sb_publishable_S9AJoMdDWsX1cPOXpM3LJw_pqdn9U0B" \
+curl -X POST "https://ppubgurkauoptjsuyfff.supabase.co/functions/v1/api-search" \
   -H "Content-Type: application/json" \
   -d '{"query": "senior engineer", "country": "Germany", "remote": true, "page_size": 20}'
+
+# Get full details for a specific job
+curl -X POST "https://ppubgurkauoptjsuyfff.supabase.co/functions/v1/api-job-detail" \
+  -H "Content-Type: application/json" \
+  -d '{"job_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"}'
 ```
 
 ### Submit a job
@@ -51,18 +53,19 @@ curl -X POST "https://ppubgurkauoptjsuyfff.supabase.co/functions/v1/submit-job" 
 
 ## API Reference
 
-### Base URLs
+### Base URL
 
-| Purpose | URL |
-|---------|-----|
-| Read (PostgREST) | `https://ppubgurkauoptjsuyfff.supabase.co/rest/v1` |
-| Write (Edge Functions) | `https://ppubgurkauoptjsuyfff.supabase.co/functions/v1` |
+All endpoints are served through Supabase Edge Functions:
 
-All read requests require the header: `apikey: sb_publishable_S9AJoMdDWsX1cPOXpM3LJw_pqdn9U0B`
+```
+https://ppubgurkauoptjsuyfff.supabase.co/functions/v1
+```
+
+No authentication headers are required for read endpoints. The edge functions handle auth internally.
 
 ### Endpoints
 
-#### `GET /rest/v1/jobs`
+#### `GET /functions/v1/api-jobs`
 List and filter jobs. Supports full [PostgREST filter syntax](https://docs.postgrest.org/en/stable/references/api/tables_views.html).
 
 Common filters:
@@ -73,7 +76,7 @@ Common filters:
 - `?title=ilike.*engineer*` — fuzzy title match
 - `?order=posted_at.desc&limit=20&offset=0` — pagination
 
-#### `POST /rest/v1/rpc/search_jobs`
+#### `POST /functions/v1/api-search`
 Full-text search with ranking and combined filters.
 
 ```json
@@ -91,7 +94,7 @@ Full-text search with ranking and combined filters.
 }
 ```
 
-#### `POST /rest/v1/rpc/get_job_detail`
+#### `POST /functions/v1/api-job-detail`
 Get a full job record including description, requirements, and all nested fields.
 
 ```json
@@ -102,6 +105,13 @@ Get a full job record including description, requirements, and all nested fields
 Submit a new job. See [Job Schema](#job-schema) below.
 
 Optional header: `X-API-Key: <your-key>` for higher rate limits.
+
+#### `POST /functions/v1/create-api-key`
+Generate an API key for higher rate limits. See [Getting an API Key](#getting-an-api-key).
+
+```json
+{ "name": "my-scraper", "email": "dev@example.com" }
+```
 
 ---
 
@@ -170,10 +180,15 @@ Optional header: `X-API-Key: <your-key>` for higher rate limits.
 
 ## Getting an API Key
 
-For trusted scrapers or high-volume use cases, request an API key by opening a GitHub issue with:
-- Your scraper/company name
-- Estimated volume (jobs/day)
-- Contact email
+For trusted scrapers or high-volume use cases, generate an API key programmatically:
+
+```bash
+curl -X POST "https://ppubgurkauoptjsuyfff.supabase.co/functions/v1/create-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my-scraper", "email": "dev@example.com"}'
+```
+
+The key is returned once in plaintext. Save it immediately — it is hashed server-side and cannot be retrieved later.
 
 API keys unlock higher rate limits (configurable, default 100 req/min).
 
@@ -183,12 +198,13 @@ API keys unlock higher rate limits (configurable, default 100 req/min).
 
 | Component | Technology |
 |-----------|-----------|
-| Database | Supabase (PostgreSQL + PostgREST) |
-| Write API | Supabase Edge Functions (Deno) |
+| Database | Supabase (PostgreSQL) |
+| API | Supabase Edge Functions (Deno) |
+| Observability | OpenTelemetry (traces + logs) exported to SigNoz |
 | Documentation | GitHub Pages (static) |
 | CI/CD | GitHub Actions |
 
-No external servers. Everything runs on Supabase + GitHub.
+All API requests are routed through instrumented Edge Functions that proxy to PostgREST internally. This provides request tracing, latency metrics, and structured logging without exposing the database layer directly.
 
 ---
 

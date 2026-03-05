@@ -7,7 +7,7 @@ info:
 
     ## Authentication
 
-    **Reading jobs** requires only the public anon key in the `apikey` header — it is safe to use from browsers and scripts.
+    **Reading jobs** requires no authentication — the instrumented Edge Function proxies handle auth internally. Safe to call from browsers and scripts.
 
     **Submitting jobs** requires no authentication by default (rate limited to 10 req/min per IP).
     Provide an `X-API-Key` header to unlock higher rate limits for trusted scrapers.
@@ -31,13 +31,10 @@ info:
     url: "https://opensource.org/licenses/MIT"
 
 servers:
-  - url: "https://ppubgurkauoptjsuyfff.supabase.co/rest/v1"
-    description: PostgREST read API
   - url: "https://ppubgurkauoptjsuyfff.supabase.co/functions/v1"
-    description: Edge Functions write API
+    description: Edge Functions API (instrumented)
 
-security:
-  - AnonKey: []
+security: []
 
 tags:
   - name: Jobs
@@ -454,7 +451,7 @@ components:
           description: Structured validation error details (present on 422 responses)
 
 paths:
-  /jobs:
+  /api-jobs:
     get:
       operationId: listJobs
       tags: [Jobs]
@@ -474,12 +471,6 @@ paths:
         Use `select` to request only specific columns:
         `?select=id,title,company_name,salary_min,salary_max`
       parameters:
-        - in: header
-          name: apikey
-          required: true
-          schema:
-            type: string
-          description: Supabase anon key
         - in: query
           name: select
           schema:
@@ -577,7 +568,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /rpc/search_jobs:
+  /api-search:
     post:
       operationId: searchJobs
       tags: [Jobs]
@@ -659,7 +650,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /rpc/get_job_detail:
+  /api-job-detail:
     post:
       operationId: getJobDetail
       tags: [Jobs]
@@ -667,9 +658,6 @@ paths:
       description: |
         Returns a complete job record including the full description, responsibilities,
         requirements, benefits, and all nested JSONB fields.
-
-        The `GET /jobs?id=eq.{uuid}` endpoint also works but returns all columns including
-        internal ones. This RPC returns only the intended public fields.
       requestBody:
         required: true
         content:
