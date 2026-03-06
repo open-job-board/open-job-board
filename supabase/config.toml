@@ -18,5 +18,5 @@ port = 54323
 
 [auth]
 enabled = true
-site_url = "https://almaju.github.io/open-job-board"
+site_url = "https://open-job-board.github.io/open-job-board"
 additional_redirect_urls = []

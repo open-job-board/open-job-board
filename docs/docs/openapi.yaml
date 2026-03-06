@@ -25,7 +25,7 @@ info:
     | `is.` | is null/true/false | `?remote_full=is.true` |
 
   contact:
-    url: "https://github.com/almaju/open-job-board"
+    url: "https://github.com/open-job-board/open-job-board"
   license:
     name: MIT
     url: "https://opensource.org/licenses/MIT"
