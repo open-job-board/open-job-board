@@ -27,7 +27,7 @@ INSERT INTO public.jobs (
   'Berlin', 'Germany', true, NULL,
   '{"qualifications":["5+ years professional backend experience","BSc in Computer Science or equivalent"],"hard_skills":["Go","PostgreSQL","Kubernetes","gRPC","Redis"],"soft_skills":["Strong written communication","Ownership mindset"],"others":[]}',
   'EUR', 90000, 130000, 'yearly',
-  '2026-02-20T09:00:00Z', '2026-02-20T10:15:00Z'
+  now() - interval '1 day', now() - interval '1 day' + interval '75 minutes'
 ),
 
 -- 2. Frontend Engineer — Paris, hybrid
@@ -44,7 +44,7 @@ INSERT INTO public.jobs (
   'Paris', 'France', false, 2,
   '{"qualifications":["3+ years React experience"],"hard_skills":["React","TypeScript","Vite","Vitest","CSS Modules"],"soft_skills":["Attention to detail","Collaboration"],"others":["Experience with design systems"]}',
   'EUR', 60000, 80000, 'yearly',
-  '2026-02-22T08:00:00Z', '2026-02-22T09:30:00Z'
+  now() - interval '2 days', now() - interval '2 days' + interval '90 minutes'
 ),
 
 -- 3. Staff ML Engineer — London, full remote
@@ -61,7 +61,7 @@ INSERT INTO public.jobs (
   'London', 'United Kingdom', true, NULL,
   '{"qualifications":["8+ years in ML/data engineering","Experience leading ML teams"],"hard_skills":["Python","PyTorch","Spark","Kafka","Feature stores"],"soft_skills":["Strategic thinking","Clear communication"],"others":["Experience with real-time ML serving"]}',
   'GBP', 140000, 180000, 'yearly',
-  '2026-02-18T11:00:00Z', '2026-02-18T12:00:00Z'
+  now() - interval '3 days', now() - interval '3 days' + interval '60 minutes'
 ),
 
 -- 4. DevOps / Platform Engineer — Remote, worldwide
@@ -78,7 +78,7 @@ INSERT INTO public.jobs (
   NULL, NULL, true, NULL,
   '{"qualifications":["4+ years in platform/infrastructure roles"],"hard_skills":["Kubernetes","Terraform","AWS","ArgoCD","Prometheus","Grafana"],"soft_skills":["Reliability mindset","Documentation discipline"],"others":[]}',
   'USD', 120000, 160000, 'yearly',
-  '2026-02-15T14:00:00Z', '2026-02-15T15:30:00Z'
+  now() - interval '4 days', now() - interval '4 days' + interval '90 minutes'
 ),
 
 -- 5. Product Designer — Amsterdam, on-site
@@ -95,7 +95,7 @@ INSERT INTO public.jobs (
   'Amsterdam', 'Netherlands', false, NULL,
   '{"qualifications":["5+ years product design experience","Strong portfolio demonstrating end-to-end design process"],"hard_skills":["Figma","Protopie","User research methods"],"soft_skills":["Empathy","Storytelling","Facilitation"],"others":[]}',
   'EUR', 65000, 90000, 'yearly',
-  '2026-02-21T10:00:00Z', '2026-02-21T11:00:00Z'
+  now() - interval '5 days', now() - interval '5 days' + interval '60 minutes'
 ),
 
 -- 6. Backend Developer (Python) — Remote EU
@@ -112,7 +112,7 @@ INSERT INTO public.jobs (
   NULL, NULL, true, NULL,
   '{"qualifications":["3+ years Python backend experience"],"hard_skills":["Python","FastAPI","PostgreSQL","dbt","Airflow"],"soft_skills":["Attention to compliance and quality","Clear documentation habits"],"others":["Experience with healthcare data standards (HL7, FHIR) is a plus"]}',
   'EUR', 70000, 95000, 'yearly',
-  '2026-02-23T08:30:00Z', '2026-02-23T09:00:00Z'
+  now() - interval '6 days', now() - interval '6 days' + interval '30 minutes'
 ),
 
 -- 7. iOS Engineer — Munich, hybrid
@@ -129,7 +129,7 @@ INSERT INTO public.jobs (
   'Munich', 'Germany', false, 1,
   '{"qualifications":["3+ years iOS development","Published apps in the App Store"],"hard_skills":["Swift","SwiftUI","Combine","Xcode","REST APIs"],"soft_skills":["User empathy","Iterative mindset"],"others":["Experience with HealthKit is a bonus"]}',
   'EUR', 75000, 105000, 'yearly',
-  '2026-02-19T09:00:00Z', '2026-02-19T10:00:00Z'
+  now() - interval '1 day' - interval '12 hours', now() - interval '1 day' - interval '11 hours'
 ),
 
 -- 8. Data Analyst — Madrid, hybrid
@@ -146,7 +146,7 @@ INSERT INTO public.jobs (
   'Madrid', 'Spain', false, 2,
   '{"qualifications":["2+ years as a data analyst"],"hard_skills":["SQL","Python (pandas)","Looker or Metabase","dbt"],"soft_skills":["Business acumen","Clear communication of complex data"],"others":[]}',
   'EUR', 38000, 52000, 'yearly',
-  '2026-02-24T09:00:00Z', '2026-02-24T10:00:00Z'
+  now() - interval '2 days' - interval '12 hours', now() - interval '2 days' - interval '11 hours'
 ),
 
 -- 9. Security Engineer — Remote, worldwide
@@ -163,7 +163,7 @@ INSERT INTO public.jobs (
   NULL, NULL, true, NULL,
   '{"qualifications":["4+ years in application or product security","OSCP, CEH, or equivalent preferred"],"hard_skills":["OWASP","Burp Suite","Static analysis tools","AWS security","Python or Go for tooling"],"soft_skills":["Collaborative by nature","Ability to explain security risks to non-engineers"],"others":[]}',
   'USD', 150000, 190000, 'yearly',
-  '2026-02-17T16:00:00Z', '2026-02-17T17:00:00Z'
+  now() - interval '3 days' - interval '12 hours', now() - interval '3 days' - interval '11 hours'
 ),
 
 -- 10. Part-time Technical Writer — Remote
@@ -180,5 +180,5 @@ INSERT INTO public.jobs (
   NULL, NULL, true, NULL,
   '{"qualifications":["3+ years technical writing experience","Experience documenting REST APIs"],"hard_skills":["OpenAPI / Swagger","Markdown","Git","Docs-as-code workflows"],"soft_skills":["Clarity and precision in writing","Empathy for developers"],"others":["Experience with tools like Docusaurus, MkDocs, or ReadMe is a plus"]}',
   'USD', 55, 75, 'hourly',
-  '2026-02-25T12:00:00Z', '2026-02-25T13:00:00Z'
+  now() - interval '4 days' - interval '12 hours', now() - interval '4 days' - interval '11 hours'
 );
