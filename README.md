@@ -2,8 +2,8 @@
 
 A free, open job board with a public REST API. Anyone can post jobs (scrapers, companies, individuals). Anyone can query them.
 
-**Live:** https://almaju.github.io/open-job-board
-**API Docs:** https://almaju.github.io/open-job-board/docs.html
+**Live:** https://open-job-board.github.io/open-job-board
+**API Docs:** https://open-job-board.github.io/open-job-board/docs/
 
 ---
 
